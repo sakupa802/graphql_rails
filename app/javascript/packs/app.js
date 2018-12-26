@@ -1,23 +1,50 @@
-/* eslint no-console: 0 */
-// Run this example by adding <%= javascript_pack_tag 'hello_vue' %> (and
-// <%= stylesheet_pack_tag 'hello_vue' %> if you have styles in your component)
-// to the head of your layout file,
-// like app/views/layouts/application.html.erb.
-// All it does is render <div>Hello Vue</div> at the bottom of the page.
+import Vue from 'vue/dist/vue.esm.js'
+import VueRouter from 'vue-router'
+import VueApollo from 'vue-apollo'
+import ApolloClient from "apollo-boost";
 
-import Vue from 'vue'
-import App from '../app.vue'
+import Index from './components/index.vue'
+// import New from './components/new.vue'
 
-document.addEventListener('DOMContentLoaded', () => {
-  const el = document.body.appendChild(document.createElement('hello'))
-  const app = new Vue({
-    el,
-    render: h => h(App)
-  })
+document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
-  console.log(app)
+const authLink = setContext((_, { headers }) => {
+  // get the authentication token from local storage if it exists
+  const token = localStorage.getItem('token');
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    }
+  }
+});
+
+const apolloClient = new ApolloClient({
+  uri: "http://localhost:5000/graphql"
+});
+
+const apolloProvider = new VueApollo({
+  defaultClient: apolloClient
 })
 
+Vue.use(VueApollo)
+
+Vue.use(VueRouter)
+
+const router = new VueRouter({
+  mode: 'history',
+  routes: [
+    { path: '/', component: Index },
+    // { path: '/new', component: New },
+  ],
+})
+
+const app = new Vue({
+  router,
+  apolloProvider,
+  el: '#app',
+})
 
 // The above code uses Vue without the compiler, which means you cannot
 // use Vue to target elements in your existing html templates. You would

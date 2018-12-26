@@ -1,5 +1,5 @@
-module Mutations::Post
-  class Insert < GraphQL::Schema::Mutation
+module Mutations
+  class CreatePost < GraphQL::Schema::Mutation
     null false
 
     argument :title, String, required: true
@@ -15,7 +15,9 @@ module Mutations::Post
       )
 
       if post.save
-        { post: post }
+        { 
+          post: post
+        }
       else
         raise GraphQL::ExecutionError, post.errors.full_messages.join(", ")
       end
